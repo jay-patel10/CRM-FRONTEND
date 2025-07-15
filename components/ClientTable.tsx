@@ -6,9 +6,10 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 interface Props {
   data: Client[];
+  onEdit: (id: string) => void;
 }
 
-export default function ClientTable({ data }: Props) {
+export default function ClientTable({ data, onEdit }: Props) {
   return (
     <div className="bg-white shadow rounded-md overflow-auto">
       <table className="min-w-full text-sm text-left">
@@ -46,10 +47,17 @@ export default function ClientTable({ data }: Props) {
                 <td className="p-3">{client.status}</td>
                 <td className="p-3">
                   <div className="flex gap-2">
-                    <button className="text-blue-600 hover:text-blue-800">
+                    {/* ✅ EDIT Button */}
+                    <button
+                      onClick={() => onEdit(client.id)}
+                      className="text-blue-600 hover:text-blue-800"
+                      title="Edit"
+                    >
                       <Pencil size={16} />
                     </button>
-                    <button className="text-red-600 hover:text-red-800">
+
+                    {/* ❌ Future: Add Delete later */}
+                    <button className="text-red-600 hover:text-red-800" title="Delete">
                       <Trash2 size={16} />
                     </button>
                   </div>
