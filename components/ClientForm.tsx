@@ -14,8 +14,9 @@ export default function ClientForm() {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm();
+
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
 
@@ -24,25 +25,31 @@ export default function ClientForm() {
       setUploading(true);
 
       const formData = new FormData();
-      for (let key in data) {
-        formData.append(key, data[key]);
-      }
+      formData.append('sfId', data.sfId);
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('departmentType', data.departmentType);
 
-      if (data.logo[0]) {
+      if (data.checklistStatus) formData.append('checklistStatus', data.checklistStatus);
+      if (data.status) formData.append('status', data.status);
+      if (data.assigningUserId !== undefined && data.assigningUserId !== '') {
+        formData.append('assigningUserId', String(data.assigningUserId));
+      }
+      if (data.logo && data.logo.length > 0) {
         formData.append('logo', data.logo[0]);
       }
 
       await api.post('/clients', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       reset();
       router.push('/clients');
     } catch (err) {
       console.error('Error creating client:', err);
-      alert('Failed to create client');
+      alert('Failed to create client.');
     } finally {
       setUploading(false);
     }
@@ -57,38 +64,25 @@ export default function ClientForm() {
 
       <div>
         <label className="block font-medium">SF ID *</label>
-        <input
-          {...register('sfId', { required: true })}
-          className="input"
-        />
+        <input {...register('sfId', { required: true })} className="input" />
         {errors.sfId && <p className="text-red-500 text-sm">SF ID is required</p>}
       </div>
 
       <div>
         <label className="block font-medium">Client Name *</label>
-        <input
-          {...register('name', { required: true })}
-          className="input"
-        />
+        <input {...register('name', { required: true })} className="input" />
         {errors.name && <p className="text-red-500 text-sm">Name is required</p>}
       </div>
 
       <div>
         <label className="block font-medium">Email *</label>
-        <input
-          {...register('email', { required: true })}
-          type="email"
-          className="input"
-        />
+        <input {...register('email', { required: true })} type="email" className="input" />
         {errors.email && <p className="text-red-500 text-sm">Email is required</p>}
       </div>
 
       <div>
         <label className="block font-medium">Department Type *</label>
-        <select
-          {...register('departmentType', { required: true })}
-          className="input"
-        >
+        <select {...register('departmentType', { required: true })} className="input">
           <option value="">Select...</option>
           {DEPARTMENT_TYPES.map((dept) => (
             <option key={dept} value={dept}>
@@ -136,12 +130,7 @@ export default function ClientForm() {
 
       <div>
         <label className="block font-medium">Logo (optional)</label>
-        <input
-          type="file"
-          accept="image/*"
-          {...register('logo')}
-          className="input"
-        />
+        <input type="file" accept="image/*" {...register('logo')} className="input" />
       </div>
 
       <button

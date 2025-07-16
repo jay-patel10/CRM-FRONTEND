@@ -12,6 +12,8 @@ export default function CreateClientPage() {
           ← Back to Client List
         </Link>
       </div>
+
+      {/* ✅ Do NOT render ClientTable here */}
       <ClientForm />
     </div>
   );
