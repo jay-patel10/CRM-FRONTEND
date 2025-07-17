@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -16,7 +15,15 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-[#083B60] text-white flex flex-col p-4">
-      <div className="text-2xl font-bold mb-10">🌀 PABS</div>
+      {/* 🔧 Logo aligned left */}
+      <div className="mb-10">
+        <img
+          src="/pabs_logo_white.svg"
+          alt="PABS Logo"
+          className="h-12 w-auto ml-8" // <-- aligned left with margin
+        />
+      </div>
+
       <nav className="flex flex-col gap-2">
         {menu.map((item) => {
           const Icon = item.icon;
@@ -25,8 +32,8 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 p-2 rounded-md hover:bg-blue-600 ${
-                isActive ? 'bg-blue-700' : ''
+              className={`flex items-center gap-3 p-2 rounded-md hover:bg-[#0C4F6D] ${
+                isActive ? 'bg-[#0A4563]' : ''
               }`}
             >
               <Icon size={18} />

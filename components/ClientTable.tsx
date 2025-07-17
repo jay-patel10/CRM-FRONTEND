@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Client } from '@/types/client';
 import { Pencil, Trash2, FileText } from 'lucide-react';
+import { Client } from '@/types/client';
 
 interface Props {
   data: Client[];
-  onEdit: (id: number) => void;
+  onEdit?: (id: number) => void;
+  isLoading?: boolean;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-export default function ClientTable({ data, onEdit }: Props) {
+export default function ClientTable({ data, onEdit, isLoading }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -42,94 +43,99 @@ export default function ClientTable({ data, onEdit }: Props) {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-white p-4 text-center text-gray-500 border border-gray-200">
+        Loading clients...
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white shadow rounded-md overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-100 text-gray-700">
+    <div className="overflow-x-auto border border-gray-300 bg-white">
+      <table className="min-w-full text-sm text-left table-fixed">
+        <thead className="bg-[#f6f7fa] text-[#1f2937] border-b border-gray-300">
+          <tr>
+            <th className="px-5 py-4 w-10">
+              <input
+                type="checkbox"
+                className="w-4 h-4 cursor-pointer accent-blue-600"
+                onChange={handleSelectAll}
+                checked={
+                  currentData.length > 0 &&
+                  currentData.every((client) => selectedIds.includes(String(client.id)))
+                }
+              />
+            </th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Sr No.</th>
+<th className="px-4 py-3 font-semibold text-gray-800">SF ID</th>
+<th className="px-4 py-3 font-semibold text-gray-800">Client Name</th>
+<th className="px-4 py-3 font-semibold text-gray-800">Department Type</th>
+<th className="px-4 py-3 font-semibold text-gray-800">Checklist Status</th>
+<th className="px-4 py-3 font-semibold text-gray-800">Assigning User</th>
+<th className="px-4 py-3 font-semibold text-gray-800">Status</th>
+<th className="px-4 py-3 font-semibold text-gray-800">Actions</th>
+
+          </tr>
+        </thead>
+        <tbody className="text-gray-700">
+          {currentData.length === 0 ? (
             <tr>
-              <th className="p-3 w-10">
-                <input
-                  type="checkbox"
-                  className="accent-blue-600"
-                  onChange={handleSelectAll}
-                  checked={
-                    currentData.length > 0 &&
-                    currentData.every((client) =>
-                      selectedIds.includes(String(client.id))
-                    )
-                  }
-                />
-              </th>
-              <th className="p-3">Sr No.</th>
-              <th className="p-3">SF ID</th>
-              <th className="p-3">Client Name</th>
-              <th className="p-3">Department Type</th>
-              <th className="p-3">Checklist Status</th>
-              <th className="p-3">Assigning User</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
+              <td colSpan={9} className="text-center py-4 text-gray-500">
+                No clients found.
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {currentData.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="p-4 text-center text-gray-500">
-                  No clients found.
+          ) : (
+            currentData.map((client, index) => (
+              <tr
+                key={client.id}
+                className="border-b border-gray-200 hover:bg-gray-50 transition"
+              >
+                <td className="px-5 py-2">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 cursor-pointer accent-blue-600"
+                    checked={selectedIds.includes(String(client.id))}
+                    onChange={() => handleRowSelect(client.id)}
+                  />
+                </td>
+          <td className="px-4 py-3 text-gray-700 font-normal">{startIdx + index + 1}</td>
+<td className="px-4 py-3 text-gray-700 font-normal">{client.sfId}</td>
+<td className="px-4 py-3 text-gray-700 font-normal">{client.name}</td>
+<td className="px-4 py-3 text-gray-700 font-normal">{client.departmentType}</td>
+<td className="px-4 py-3 text-gray-700 font-normal">{client.checklistStatus}</td>
+<td className="px-4 py-3 text-gray-700 font-normal">{client.assigningUserId ?? '-'}</td>
+<td className="px-4 py-3 text-gray-700 font-normal">{client.status}</td>
+
+                <td className="px-2 py-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="text-gray-600 hover:text-gray-800"
+                      onClick={() => onEdit?.(client.id)}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button className="text-gray-600 hover:text-gray-800">
+                      <Trash2 size={16} />
+                    </button>
+                    <button className="text-gray-600 hover:text-gray-800">
+                      <FileText size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ) : (
-              currentData.map((client, index) => (
-                <tr
-                  key={client.id}
-                  className="border-b hover:bg-gray-50 transition-colors"
-                >
-                  <td className="p-3">
-                    <input
-                      type="checkbox"
-                      className="accent-blue-600"
-                      checked={selectedIds.includes(String(client.id))}
-                      onChange={() => handleRowSelect(client.id)}
-                    />
-                  </td>
-                  <td className="p-3">{startIdx + index + 1}</td>
-                  <td className="p-3">{client.sfId}</td>
-                  <td className="p-3">{client.name}</td>
-                  <td className="p-3">{client.departmentType}</td>
-                  <td className="p-3">{client.checklistStatus}</td>
-                  <td className="p-3">{client.assigningUserId ?? '-'}</td>
-                  <td className="p-3">{client.status}</td>
-                  <td className="p-3">
-                    <div className="flex gap-2">
-                      <button
-                        className="text-blue-600 hover:text-blue-800"
-                        onClick={() => onEdit(client.id)}
-                        title="Edit"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button className="text-red-600 hover:text-red-800" title="Delete">
-                        <Trash2 size={16} />
-                      </button>
-                      <button className="text-gray-600 hover:text-gray-800" title="Document">
-                        <FileText size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
 
-      {/* ✅ Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center p-4 bg-gray-50 text-sm text-gray-600">
+        <div className="flex justify-between items-center px-4 py-2 bg-[#f6f7fa] text-sm border-t border-gray-300">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50"
+            className="px-3 py-1 border border-gray-400 rounded disabled:opacity-50"
           >
             Prev
           </button>
@@ -139,7 +145,7 @@ export default function ClientTable({ data, onEdit }: Props) {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50"
+            className="px-3 py-1 border border-gray-400 rounded disabled:opacity-50"
           >
             Next
           </button>

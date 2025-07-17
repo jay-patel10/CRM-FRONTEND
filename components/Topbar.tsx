@@ -1,50 +1,49 @@
-// components/Topbar.tsx
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, LogOut, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { logoutUser } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
 export default function Topbar() {
-  const [showMenu, setShowMenu] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      await logoutUser(); // 🔐 Hit logout API
-
-      // 🧹 Clear stored session
+      await logoutUser();
       localStorage.removeItem('token');
       localStorage.removeItem('email');
       localStorage.removeItem('role');
-
-      console.log('✅ Logged out successfully');
-
       router.push('/');
     } catch (err) {
-      console.error('❌ Logout failed:', err);
+      console.error('Logout failed:', err);
       alert('Logout failed. Try again.');
     }
   };
 
   return (
-    <div className="flex justify-between items-center px-6 py-3 border-b bg-white shadow-sm">
-      <h1 className="text-xl font-semibold">Client Management</h1>
-      <div className="relative">
+    <div className="flex justify-between items-center px-6 py-2 border-b bg-white shadow-sm">
+      {/* Left: Title */}
+      <h1 className="text-lg font-semibold">Client Management</h1>
+
+      {/* Right: Super Admin & Icon */}
+      <div className="relative flex items-center gap-2">
+        <span className="font-medium text-black">Super Admin</span>
+
         <button
-          className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
-          onClick={() => setShowMenu((prev) => !prev)}
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-black"
+          onClick={() => setShowLogout(!showLogout)}
         >
-          <User className="w-5 h-5" />
-          <span className="font-medium">Super Admin</span>
-          <ChevronDown className="w-4 h-4" />
+          <i className="fa-solid fa-user text-black text-lg" style={{ fontSize: '26px' }}></i>
         </button>
-        {showMenu && (
-          <div className="absolute right-0 mt-2 bg-white shadow rounded-md w-40 z-10 border">
+
+        {/* Dropdown Logout */}
+        {showLogout && (
+          <div className="absolute right-0 top-[48px] bg-white shadow-md rounded-md border w-32 z-20">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-gray-100"
+              className="w-full px-4 py-2 text-sm text-left text-gray-800 hover:bg-gray-100 flex items-center gap-2"
             >
               <LogOut className="w-4 h-4" />
               Logout

@@ -1,23 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { Client } from '@/types/client';
 import ClientTable from '@/components/ClientTable';
+import FilterModal from '@/components/FilterModel';
+import AddClientDrawer from '@/components/ClientDrawer';
+import { TextField, IconButton, Button } from '@mui/material';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 
 export default function ClientListPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const router = useRouter();
 
-  // 🔐 Route protection
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role')?.trim();
-
-    console.log('🔐 Auth check | token:', token, '| role:', role);
 
     if (!token || role !== 'Super Admin') {
       alert('Access denied. Please login as Super Admin.');
@@ -31,36 +35,114 @@ export default function ClientListPage() {
     try {
       const res = await api.get('/clients');
       setClients(res.data.data);
-    } catch (err) {
-      console.error('❌ Failed to fetch clients:', err);
+    } catch (error) {
+      console.error('❌ Failed to fetch clients:', error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">All Clients</h2>
-        <Link
-          href="/clients/create"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          + Add Client
-        </Link>
+    <div className="p-6 space-y-6 w-full">
+      {/* 🔍 Search + Filter + Add Button */}
+      <div className="flex items-center justify-between">
+        {/* 🔎 Search Input */}
+        <TextField
+  size="small"
+  placeholder="Search"
+  variant="outlined"
+  sx={{
+    width: '100%',
+    maxWidth: '400px',
+    backgroundColor: '#fff',
+    borderRadius: '6px',
+    '& .MuiOutlinedInput-root': {
+      height: '35px',
+      fontSize: '0.9rem',
+      paddingRight: '8px',
+      '& fieldset': {
+        borderColor: '#d3d3d3',
+      },
+      '&:hover fieldset': {
+        borderColor: '#999',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#0a3d62',
+      },
+    },
+    '& input::placeholder': {
+      color: '#a0a0a0',
+    },
+  }}
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <SearchIcon sx={{ color: '#999', fontSize: 20 }} />
+      </InputAdornment>
+    ),
+  }}
+/>
+
+        {/* 👉 Right-side buttons */}
+        <div className="flex items-center gap-3">
+          {/* Filter Button - Square, white icon, square border */}
+          <IconButton
+            onClick={() => setFilterOpen(true)}
+            title="Filter"
+            sx={{
+              border: '1px solid #0a3d62',
+              borderRadius: 0,
+              padding: '6px',
+              backgroundColor: '#fff',
+              color: '#0a3d62',
+              minHeight: '30px',
+              minWidth: '32px',
+              '&:hover': {
+                backgroundColor: '#f0f4f8',
+              },
+            }}
+          >
+            <FilterAltIcon sx={{ fontSize: 20 }} />
+          </IconButton>
+
+          {/* Add Client Button */}
+          <Button
+            onClick={() => setDrawerOpen(true)}
+            sx={{
+              border: '1px solid #0a3d62',
+              borderRadius: 0,
+              backgroundColor: '#fff',
+              color: '#0a3d62',
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              px: 1.5,
+              py: 0.5,
+              minHeight: '32px',
+              lineHeight: 1,
+              '&:hover': {
+                backgroundColor: '#f0f4f8',
+              },
+            }}
+          >
+            + Add Client
+          </Button>
+        </div>
       </div>
 
-      {loading ? (
-        <p className="text-gray-500">Loading...</p>
-      ) : (
-          <ClientTable
-            data={clients}
-            onEdit={(id) => {
-              console.log('Edit client ID:', id);
-              // Optionally redirect or open drawer here
-            }}
-          />
-      )}
+      {/* 📊 Client Table */}
+      <ClientTable
+        data={clients}
+        isLoading={loading}
+        onEdit={(id) => {
+          console.log('Edit client ID:', id);
+        }}
+      />
+
+      {/* 🎛️ Filter Modal */}
+      <FilterModal isOpen={filterOpen} onClose={() => setFilterOpen(false)} />
+
+      {/* 📥 Add Client Drawer */}
+      <AddClientDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 }

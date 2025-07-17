@@ -18,7 +18,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
         {!isAuthPage && <Topbar />}
 
         {/* This container scrolls, not the whole screen */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-4">
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-0">
           {children}
         </div>
       </div>
