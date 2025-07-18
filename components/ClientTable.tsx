@@ -45,21 +45,23 @@ export default function ClientTable({ data, onEdit, isLoading }: Props) {
 
   if (isLoading) {
     return (
-      <div className="bg-white p-4 text-center text-gray-500 border border-gray-200">
+      <div className="bg-white p-4 text-center text-gray-500 border border-gray-200 rounded-xl">
         Loading clients...
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto border border-gray-300 bg-white">
+    <div className="overflow-x-auto border border-gray-300 bg-white rounded-xl">
+      {/* 👆 Rounded corners for table container */}
+
       <table className="min-w-full text-sm text-left table-fixed">
         <thead className="bg-[#f6f7fa] text-[#1f2937] border-b border-gray-300">
           <tr>
             <th className="px-5 py-4 w-10">
               <input
                 type="checkbox"
-                className="w-4 h-4 cursor-pointer accent-blue-600"
+                className="w-3.5 h-3.5 cursor-pointer accent-blue-600"
                 onChange={handleSelectAll}
                 checked={
                   currentData.length > 0 &&
@@ -68,14 +70,13 @@ export default function ClientTable({ data, onEdit, isLoading }: Props) {
               />
             </th>
             <th className="px-4 py-3 font-semibold text-gray-800">Sr No.</th>
-<th className="px-4 py-3 font-semibold text-gray-800">SF ID</th>
-<th className="px-4 py-3 font-semibold text-gray-800">Client Name</th>
-<th className="px-4 py-3 font-semibold text-gray-800">Department Type</th>
-<th className="px-4 py-3 font-semibold text-gray-800">Checklist Status</th>
-<th className="px-4 py-3 font-semibold text-gray-800">Assigning User</th>
-<th className="px-4 py-3 font-semibold text-gray-800">Status</th>
-<th className="px-4 py-3 font-semibold text-gray-800">Actions</th>
-
+            <th className="px-4 py-3 font-semibold text-gray-800">SF ID</th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Client Name</th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Department Type</th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Checklist Status</th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Assigning User</th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Status</th>
+            <th className="px-4 py-3 font-semibold text-gray-800">Actions</th>
           </tr>
         </thead>
         <tbody className="text-gray-700">
@@ -94,19 +95,23 @@ export default function ClientTable({ data, onEdit, isLoading }: Props) {
                 <td className="px-5 py-2">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 cursor-pointer accent-blue-600"
+                    className="w-3.5 h-3.5 cursor-pointer accent-blue-600"
                     checked={selectedIds.includes(String(client.id))}
                     onChange={() => handleRowSelect(client.id)}
                   />
                 </td>
-          <td className="px-4 py-3 text-gray-700 font-normal">{startIdx + index + 1}</td>
-<td className="px-4 py-3 text-gray-700 font-normal">{client.sfId}</td>
-<td className="px-4 py-3 text-gray-700 font-normal">{client.name}</td>
-<td className="px-4 py-3 text-gray-700 font-normal">{client.departmentType}</td>
-<td className="px-4 py-3 text-gray-700 font-normal">{client.checklistStatus}</td>
-<td className="px-4 py-3 text-gray-700 font-normal">{client.assigningUserId ?? '-'}</td>
-<td className="px-4 py-3 text-gray-700 font-normal">{client.status}</td>
 
+                {/* 👇 Sr No. made bold */}
+                <td className="px-4 py-3 text-gray-700 font-semibold">
+                  {startIdx + index + 1}
+                </td>
+
+                <td className="px-4 py-3 text-gray-700 font-normal">{client.sfId}</td>
+                <td className="px-4 py-3 text-gray-700 font-normal">{client.name}</td>
+                <td className="px-4 py-3 text-gray-700 font-normal">{client.departmentType}</td>
+                <td className="px-4 py-3 text-gray-700 font-normal">{client.checklistStatus}</td>
+                <td className="px-4 py-3 text-gray-700 font-normal">{client.assigningUserId ?? '-'}</td>
+                <td className="px-4 py-3 text-gray-700 font-normal">{client.status}</td>
                 <td className="px-2 py-2">
                   <div className="flex items-center gap-2">
                     <button
@@ -131,7 +136,7 @@ export default function ClientTable({ data, onEdit, isLoading }: Props) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center px-4 py-2 bg-[#f6f7fa] text-sm border-t border-gray-300">
+        <div className="flex justify-between items-center px-4 py-2 bg-[#f6f7fa] text-sm border-t border-gray-300 rounded-b-xl">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}

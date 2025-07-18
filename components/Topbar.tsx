@@ -23,7 +23,7 @@ export default function Topbar() {
   };
 
   return (
-    <div className="flex justify-between items-center px-6 py-2 border-b bg-white shadow-sm">
+    <div className="flex justify-between items-center px-6 py-2 border-b border-[#ccc] bg-white shadow-sm">
       {/* Left: Title */}
       <h1 className="text-lg font-semibold">Client Management</h1>
 
@@ -35,7 +35,7 @@ export default function Topbar() {
           className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-black"
           onClick={() => setShowLogout(!showLogout)}
         >
-          <i className="fa-solid fa-user text-black text-lg" style={{ fontSize: '26px' }}></i>
+          <i className="fa-solid fa-user" style={{ fontSize: '26px', color: '#444' }}></i>
         </button>
 
         {/* Dropdown Logout */}

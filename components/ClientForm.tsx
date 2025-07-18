@@ -1,173 +1,145 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { Drawer } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import api from '@/lib/api';
 
 const DEPARTMENT_TYPES = ['Aggregator OB', 'SMBs', 'Auto care', 'White Label'];
+const CHECKLIST_STATUSES = ['Completed', 'Pending'];
 const CLIENT_STATUSES = ['Active', 'Inactive'];
 
-export default function ClientDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function ClientForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
-    watch,
+    formState: { errors },
     reset,
-  } = useForm({ mode: 'onChange' });
+  } = useForm();
 
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
 
   const onSubmit = async (data: any) => {
-    setUploading(true);
     try {
+      setUploading(true);
+
       const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
+      formData.append('sfId', data.sfId);
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('departmentType', data.departmentType);
+
+      if (data.checklistStatus) formData.append('checklistStatus', data.checklistStatus);
+      if (data.status) formData.append('status', data.status);
+      if (data.assigningUserId !== undefined && data.assigningUserId !== '') {
+        formData.append('assigningUserId', String(data.assigningUserId));
+      }
+      if (data.logo && data.logo.length > 0) {
+        formData.append('logo', data.logo[0]);
       }
 
-      await api.post('/clients', formData);
-      onClose();
+      await api.post('/clients', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       reset();
+      router.push('/clients');
     } catch (err) {
-      console.error('❌ Failed to create client:', err);
+      console.error('Error creating client:', err);
+      alert('Failed to create client.');
     } finally {
       setUploading(false);
     }
   };
 
-  useEffect(() => {
-    if (!isOpen) reset();
-  }, [isOpen]);
-
   return (
-    <Drawer anchor="left" open={isOpen} onClose={onClose} PaperProps={{ sx: { width: 440, position: 'relative' } }}>
-      <div className="h-full flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b text-lg font-semibold text-[#0a3d62]">Add Client</div>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-w-xl bg-white p-6 shadow rounded-md space-y-4"
+    >
+      <h2 className="text-xl font-semibold">Add New Client</h2>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-4 space-y-4 text-[#999]">
-          {/* SF ID */}
-          <div>
-            <label className="block mb-1 text-sm">
-              SF ID <span className="text-red-500">*</span>
-            </label>
-            <input
-              {...register('sfId', { required: true })}
-              placeholder="Please enter SF ID"
-              className="w-full bg-white border-b border-gray-300 focus:outline-none focus:border-blue-500 py-2 placeholder-[#bbb] text-sm"
-            />
-            {errors.sfId && <p className="text-red-500 text-xs mt-1">SF ID is required</p>}
-          </div>
-
-          {/* Client Name */}
-          <div>
-            <label className="block mb-1 text-sm">
-              Client Full Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              {...register('name', { required: true })}
-              placeholder="Please enter client name"
-              className="w-full bg-white border-b border-gray-300 focus:outline-none focus:border-blue-500 py-2 placeholder-[#bbb] text-sm"
-            />
-            {errors.name && <p className="text-red-500 text-xs mt-1">Name is required</p>}
-          </div>
-
-          {/* Department Type */}
-          <div>
-            <label className="block mb-1 text-sm">
-              Department Type <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register('departmentType', { required: true })}
-              className="w-full bg-white border-b border-gray-300 focus:outline-none focus:border-blue-500 py-2 text-sm text-[#999]"
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select department type
-              </option>
-              {DEPARTMENT_TYPES.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-            {errors.departmentType && <p className="text-red-500 text-xs mt-1">Department type is required</p>}
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block mb-1 text-sm">
-              Status <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register('status', { required: true })}
-              className="w-full bg-white border-b border-gray-300 focus:outline-none focus:border-blue-500 py-2 text-sm text-[#999]"
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select status
-              </option>
-              {CLIENT_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-            {errors.status && <p className="text-red-500 text-xs mt-1">Status is required</p>}
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block mb-1 text-sm">
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              {...register('email', { required: true })}
-              placeholder="Please enter email"
-              className="w-full bg-white border-b border-gray-300 focus:outline-none focus:border-blue-500 py-2 placeholder-[#bbb] text-sm"
-            />
-            {errors.email && <p className="text-red-500 text-xs mt-1">Email is required</p>}
-          </div>
-
-          {/* Logo Upload */}
-          <div>
-            <label className="block mb-2 text-sm font-medium">Upload Logo</label>
-            <div className="relative w-full border-2 border-dotted border-gray-300 rounded-full py-10 px-6 bg-[#f9f9f9] flex flex-col items-center justify-center text-center text-[#999] cursor-pointer">
-              <i className="fa-thin fa-upload text-3xl mb-2"></i>
-              <p className="text-base font-medium">Drag and Drop or browse to upload</p>
-              <input
-                type="file"
-                accept="image/*"
-                {...register('logo')}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </div>
-          </div>
-        </form>
-
-        {/* Footer Buttons */}
-        <div className="absolute bottom-0 left-0 w-full bg-white border-t p-4 flex justify-between">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-400 text-[#999] rounded hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit(onSubmit)}
-            disabled={!isValid || uploading}
-            className={`px-6 py-2 text-white rounded ${
-              isValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-300 cursor-not-allowed'
-            }`}
-          >
-            Save
-          </button>
-        </div>
+      <div>
+        <label className="block font-medium">SF ID *</label>
+        <input {...register('sfId', { required: true })} className="input" />
+        {errors.sfId && <p className="text-red-500 text-sm">SF ID is required</p>}
       </div>
-    </Drawer>
+
+      <div>
+        <label className="block font-medium">Client Name *</label>
+        <input {...register('name', { required: true })} className="input" />
+        {errors.name && <p className="text-red-500 text-sm">Name is required</p>}
+      </div>
+
+      <div>
+        <label className="block font-medium">Email *</label>
+        <input {...register('email', { required: true })} type="email" className="input" />
+        {errors.email && <p className="text-red-500 text-sm">Email is required</p>}
+      </div>
+
+      <div>
+        <label className="block font-medium">Department Type *</label>
+        <select {...register('departmentType', { required: true })} className="input">
+          <option value="">Select...</option>
+          {DEPARTMENT_TYPES.map((dept) => (
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
+          ))}
+        </select>
+        {errors.departmentType && (
+          <p className="text-red-500 text-sm">Department type is required</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block font-medium">Checklist Status</label>
+        <select {...register('checklistStatus')} className="input">
+          <option value="">Select...</option>
+          {CHECKLIST_STATUSES.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Status</label>
+        <select {...register('status')} className="input">
+          <option value="">Select...</option>
+          {CLIENT_STATUSES.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Assigning User ID</label>
+        <input
+          {...register('assigningUserId')}
+          type="number"
+          className="input"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Logo (optional)</label>
+        <input type="file" accept="image/*" {...register('logo')} className="input" />
+      </div>
+
+      <button
+        type="submit"
+        disabled={uploading}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+      >
+        {uploading ? 'Saving...' : 'Create Client'}
+      </button>
+    </form>
   );
 }
